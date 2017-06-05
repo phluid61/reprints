@@ -1,0 +1,7 @@
+{
+  "title": {"type":"string"},
+  "status": {"type":"enum","values":["draft","queue","live","deleted"]},
+  "documents": {"type":"dataobj","dataset":"document","multiple":true},
+  "authors": {"type":"dataobj","dataset":"person","multiple":true},
+  "user": {"type":"dataobj","dataset":"user"}
+}

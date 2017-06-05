@@ -1,0 +1,5 @@
+{
+  "type": {"type":"string"},
+  "filename": {"type":"string"},
+  "visibility": {"type":"set","values":["hidden","staff","visible"]}
+}
