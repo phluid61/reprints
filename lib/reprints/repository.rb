@@ -1,8 +1,7 @@
 
 class Repository
-  include Configurable
 
-  def new id, dir
+  def initialize id, dir
     raise "repo #{id} not found at #{dir}" unless File.directory? dir
     @id = id
     @dir = dir

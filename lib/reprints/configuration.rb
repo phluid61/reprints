@@ -51,9 +51,7 @@ class Configuration
 private
 
   def _load
-    name = name.to_s
-
-    filename = "#{path}/#{name}.json"
+    filename = "#{@path}/#{@name}.json"
     return {} unless File.exist? filename
     JSON.load(File.read filename)
   end
