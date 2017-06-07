@@ -13,6 +13,7 @@ class Repository
       @datatypes[dtid] = DataType.new self, dtid
     end
   end
+  attr_reader :id
 
   def config key
     @config.get key

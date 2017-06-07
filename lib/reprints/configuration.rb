@@ -22,6 +22,7 @@ class Configuration
 
   def each &block
     @data = _load unless @data
+    return enum_for(:each) unless block_given?
     @data.each_pair do |k,v|
       yield k, v
     end

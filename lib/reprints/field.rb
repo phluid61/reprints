@@ -18,6 +18,7 @@ class Field
     end
     self
   end
+  alias :value= :set
 
   def value
     @value

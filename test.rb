@@ -11,6 +11,7 @@ repo = reprints.repository 'test'
 #p repo.datatype_ids
 t_record = repo.datatype('record')
 t_record.object_ids.each do |oid|
-  p t_record.load(oid)
+  obj = t_record.load(oid)
+  p obj
 end
 

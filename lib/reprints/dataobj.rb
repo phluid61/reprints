@@ -8,10 +8,18 @@ class DataObj
 
     @fields = Configuration.new path, 'metadata'
   end
+  attr_reader :repo
+  attr_reader :type
+  attr_reader :id
+
+  def field_ids
+    @fields.keys
+  end
 
   def field name
     @fields[k]
   end
+  alias :[] :field
 
   def load!
     path = path()
@@ -36,6 +44,13 @@ class DataObj
 
   def path
     @type.pathto @id
+  end
+
+  def inspect
+    inner = @fields.each.map do |k,v|
+      "#{k}=#{v.value.inspect}"
+    end
+    "\#<#{self.class.name}:#{@type.id} @id=#{@id.inspect} #{inner.join ' '}>"
   end
 
 end

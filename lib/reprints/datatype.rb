@@ -8,13 +8,15 @@ class DataType
     @path = @repo.data_path id
 
     raise "data type #{@id} does not exist" unless File.directory? @path
-    @config = Configuration.new @path
+    @fields = Configuration.new @path, 'fields'
   end
+  attr_reader :repo
+  attr_reader :id
 
-  def config key
-    @config.get key
+  def field key
+    @fields.get key
   end
-  alias :[] :config
+  alias :[] :field
 
   def create objid
     DataObj.new @repo, self, objid
