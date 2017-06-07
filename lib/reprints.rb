@@ -5,7 +5,7 @@ require_relative 'reprints/configuration'
 require_relative 'reprints/repository'
 require_relative 'reprints/datatype'
 require_relative 'reprints/dataobj'
-require_relative 'reprints/metafield'
+require_relative 'reprints/field'
 
 class Reprints
 

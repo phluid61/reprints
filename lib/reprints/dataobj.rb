@@ -6,19 +6,23 @@ class DataObj
     @type = type
     @id = id
 
-    @metadata = Configuration.new path, 'metadata'
+    @fields = Configuration.new path, 'metadata'
+  end
+
+  def field name
+    @fields[k]
   end
 
   def load!
-    path = path
+    path = path()
     raise "data object #{@type}:#{@id} does not exist" unless File.directory? path
-    @metadata = Configuration.new path, 'metadata'
-    @metadata.dup.each do |k,v|
+    @fields = Configuration.new path, 'metadata'
+    @fields.dup.each do |k,v|
       if cfg = @type[k]
-        @metadata[k] = MetaField.from(@repo, @type[k]).set(v)
+        @fields[k] = Field.from(@repo, @type[k]).set(v)
       else
         $stderr.puts "unrecognised metadata #{k} = #{v.inspect}"
-        @metadata[k] = v
+        @fields[k] = v
       end
     end
     #TODO: required/missing
@@ -26,7 +30,7 @@ class DataObj
   end
 
   def save!
-    @metadata.save
+    @fields.save
     self
   end
 

@@ -15,6 +15,7 @@ class Configuration
   alias :[] :get
 
   def set key, value
+    @data = {} unless @data
     @data[key] = value
   end
   alias :[]= :set

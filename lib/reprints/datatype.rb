@@ -25,6 +25,15 @@ class DataType
     obj.load!
   end
 
+  def object_ids
+    #FIXME
+    base = @path
+    Dir.glob("#{base}/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]").map do |dir|
+      dir[base.length..-1].gsub('/','').to_i
+    end
+  end
+
+
   def path
     @path.dup
   end

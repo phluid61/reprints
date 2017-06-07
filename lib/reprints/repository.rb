@@ -7,18 +7,30 @@ class Repository
     @dir = dir
 
     @config = Configuration.new @dir
+
+    @datatypes = {}
+    @config['datatypes'].each do |dtid|
+      @datatypes[dtid] = DataType.new self, dtid
+    end
   end
 
   def config key
     @config.get key
   end
-  alias :[] :config
+
+  def datatype_ids
+    @datatypes.keys
+  end
+  def datatype type
+    type = type.to_s
+    @datatypes[type] or raise "unknown data type #{type.inspect}"
+  end
 
   def data_path type
     type = type.to_s
     raise "illegal data type #{type.inspect}" unless type =~ /\A\w+\z/
 
-    typedir = "#{@dir}/#{type}"
+    typedir = "#{@dir}/data/#{type}"
     raise "unknown data type #{type.inspect}" unless File.directory? typedir
     typedir
   end

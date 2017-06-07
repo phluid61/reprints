@@ -1,5 +1,5 @@
 
-class MetaField
+class Field
 
   def initialize repo, schema
     @repo = repo
@@ -12,9 +12,9 @@ class MetaField
 
   def set v
     if multiple?
-      @value = v.map {|w| one w }
+      @value = v.map {|w| single_value w }
     else
-      @value = one v
+      @value = single_value v
     end
     self
   end
@@ -29,15 +29,15 @@ class MetaField
       #FIXME
       case (type = schema['type'])
       when 'integer', nil
-        MetaField::Integer.new repo, schema
+        Field::Integer.new repo, schema
       when 'string'
-        MetaField::String.new repo, schema
+        Field::String.new repo, schema
       when 'dataobj'
-        MetaField::DataObj.new repo, schema
+        Field::DataObj.new repo, schema
       when 'compound'
-        MetaField::Compound.new repo, schema
+        Field::Compound.new repo, schema
       when 'set'
-        MetaField::Set.new repo, schema
+        Field::Set.new repo, schema
       else
         raise "unknown metafield type #{type.inspect}"
       end
@@ -45,51 +45,51 @@ class MetaField
 
   end
 
-  class Integer < ::MetaField
-    def one v
+  class Integer < ::Field
+    def single_value v
       v.to_i
     end
   end
 
-  class String < ::MetaField
-    def one v
+  class String < ::Field
+    def single_value v
       v.to_s
     end
   end
 
-  class DataObj < ::MetaField
+  class DataObj < ::Field
     def initialize repo, schema
       raise "metafield:dataobj schema missing required 'dataset'" unless schema['dataset']
       @type = DataType.new repo, schema['dataset']
       super
     end
-    def one v
+    def single_value v
       @type.load v
     end
   end
 
-  class Compound < ::MetaField
+  class Compound < ::Field
     def initialize repo, schema
       raise "metafield:compound schema missing required 'subfields'" unless schema['subfields']
       @subfields = schema['subfields'].map do |sf|
-        ::MetaField.from repo, sf
+        ::Field.from repo, sf
       end
       super
     end
-    def one v
+    def single_value v
       @subfields.zip(v).map do |sf, w|
         sf.set w
       end
     end
   end
 
-  class Set < ::MetaField
+  class Set < ::Field
     def initialize repo, schema
       raise "metafield:set missing required 'values'" unless schema['values']
-      @values = schema['values'].map(:to_s)
+      @values = schema['values'].map(&:to_s)
       super
     end
-    def one v
+    def single_value v
       v = v.to_s
       raise "item #{v.inspect} not in set #{@values.inspect}" unless @values.include?(v)
       v
