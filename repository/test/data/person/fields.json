@@ -1,12 +1,12 @@
 {
   "name": {
     "type":"compound",
-    "subfields":[
+    "subfields":{
       "family":{"type":"string"},
       "given":{"type":"string"},
       "initials":{"type":"string"},
       "title":{"type":"string"}
-    ]
+    }
   },
   "orcid":{"type":"string"}
 }

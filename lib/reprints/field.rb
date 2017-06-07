@@ -24,6 +24,23 @@ class Field
     @value
   end
 
+  def each &block
+    return enum_for(:each) unless block_given?
+    if multiple?
+      @value.each &block
+    else
+      yield @value
+    end
+  end
+  include Enumerable
+
+  def to_s
+    @value.to_s
+  end
+  def inspect
+    "\#<#{self.class.name} #{@value.inspect}>"
+  end
+
   class <<self
 
     def from repo, schema
@@ -56,6 +73,9 @@ class Field
     def single_value v
       v.to_s
     end
+    def =~ other
+      @value =~ other
+    end
   end
 
   class DataObj < ::Field
@@ -67,20 +87,44 @@ class Field
     def single_value v
       @type.load v
     end
+    def to_s
+      @value.inspect
+    end
   end
 
   class Compound < ::Field
     def initialize repo, schema
       raise "metafield:compound schema missing required 'subfields'" unless schema['subfields']
-      @subfields = schema['subfields'].map do |sf|
-        ::Field.from repo, sf
+      @subfields = schema['subfields'].each_pair.inject({}) do |hash, sf|
+        hash[sf[0]] = ::Field.from repo, sf[1]
+        hash
       end
       super
     end
+    def field_ids
+      @subfields.keys
+    end
+    def subfield fid
+      @subfields[fid]
+    end
+    alias :[] :subfield
     def single_value v
-      @subfields.zip(v).map do |sf, w|
-        sf.set w
+      hash = {}
+      v.each_pair do |sf, w|
+        hash[sf] = w
       end
+      hash
+    end
+    def to_s
+      @subfields.each.map do |k,v|
+        "#{k}=#{v.to_s}"
+      end.inspect
+    end
+    def inspect
+      inner = @subfields.each.map do |k,v|
+        "#{k}=#{v.inspect}"
+      end
+      "\#<#{self.class.name} #{inner.join ' '}>"
     end
   end
 
@@ -94,6 +138,9 @@ class Field
       v = v.to_s
       raise "item #{v.inspect} not in set #{@values.inspect}" unless @values.include?(v)
       v
+    end
+    def inspect
+      "\#<#{self.class.name} values=#{@values.inspect} #{@value.inspect}>"
     end
   end
 

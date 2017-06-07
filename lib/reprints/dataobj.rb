@@ -17,9 +17,26 @@ class DataObj
   end
 
   def field name
-    @fields[k]
+    @fields[name]
   end
   alias :[] :field
+
+  def _data_path id
+    raise "illegal data id #{id.inspect}" unless id =~ /\A\w+(\.\w+)*\z/
+    path = path()
+    "#{path}/data/#{id}"
+  end
+  def data? id
+    File.exist? _data_path(id)
+  end
+  def read id, &block
+    fn = _data_path(id)
+    if block_given?
+      File.open(fn, 'r', &block)
+    else
+      File.read(fn)
+    end
+  end
 
   def load!
     path = path()

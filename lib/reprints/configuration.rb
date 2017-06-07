@@ -8,6 +8,15 @@ class Configuration
     @data = nil
   end
 
+  def keys
+    @data = _load unless @data
+    @data.keys
+  end
+  def values
+    @data = _load unless @data
+    @data.values
+  end
+
   def get key
     @data = _load unless @data
     @data[key]
