@@ -164,8 +164,14 @@ class Field
     alias :[] :subfield
     def single_value v
       hash = {}
-      v.each_pair do |sf, w|
-        hash[sf] = w
+      v.each_pair do |vkey, vval|
+        sf = @subfields[vkey]
+        if sf
+          hash[vkey] = sf.set(vval)
+        else
+          $stderr.puts "unrecognised metadata #{vkey} = #{vval.inspect}"
+          hash[vkey] = vval
+        end
       end
       hash
     end
