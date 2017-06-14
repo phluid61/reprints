@@ -7,7 +7,7 @@ require_relative 'reprints/datatype'
 require_relative 'reprints/dataobj'
 require_relative 'reprints/field'
 
-class Reprints
+class REPrints
 
   BASEDIR = File.dirname(File.dirname(__FILE__))
 
@@ -20,7 +20,7 @@ class Reprints
         repo = Repository.new repoid, repodir
         @repos[repoid] = repo
       rescue Exception => ex
-        puts ex
+        puts ex, *ex.backtrace
       end
     end
   end
@@ -36,6 +36,17 @@ class Reprints
     @repos[repoid] or raise "unknown repository #{repoid.inspect}"
   end
   alias :[] :repository
+
+  module Utils
+    def mkdir_p path
+      path.split('/').inject do |p, dir|
+        dir = "#{p}/#{dir}"
+        Dir.mkdir dir, 0700 unless File.directory? dir
+        dir
+      end
+    end
+    extend self
+  end
 
 end
 

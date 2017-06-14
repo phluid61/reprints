@@ -5,10 +5,11 @@ class DataType
     @repo = repo
     @id = id
 
-    @path = @repo.data_path id
+    @datapath = @repo.data_path id
+    @indexpath = @repo.index_path id
 
-    raise "data type #{@id} does not exist" unless File.directory? @path
-    @fields = Configuration.new @path, 'fields'
+    raise "data type #{@id} does not exist" unless File.directory? @datapath
+    @fields = Configuration.new @datapath, 'fields'
   end
   attr_reader :repo
   attr_reader :id
@@ -29,21 +30,55 @@ class DataType
 
   def object_ids
     #FIXME
-    base = @path
+    base = @datapath
     Dir.glob("#{base}/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]").map do |dir|
       dir[base.length..-1].gsub('/','').to_i
     end
   end
 
 
-  def path
-    @path.dup
+  def datapath
+    @datapath.dup
   end
 
   def pathto id
     str = '%08d' % id
     str = '0' + str if str.length % 2 == 1
-    @path + '/' + str.scan(/../).join('/')
+    @datapath + '/' + str.scan(/../).join('/')
+  end
+
+
+  def reindex! objids=nil
+    index = {}
+    @fields.each_key do |fieldname|
+      index[fieldname] = {}
+    end
+
+    objids ||= object_ids
+    objids.each do |objid|
+      obj = self.load objid
+      @fields.each_key do |fieldname|
+        field = obj[fieldname]
+        field.each_indexvalue do |value|
+          index[fieldname][value] ||= []
+          index[fieldname][value] << objid
+        end
+      end
+    end
+
+    sorted = {}
+    index.each_pair do |fieldname, values|
+      sorted[fieldname] = {}
+      values.keys.sort.each do |k|
+        sorted[fieldname][k] = values[k]
+      end
+    end
+
+    REPrints::Utils::mkdir_p @indexpath
+    sorted.each_pair do |fieldname, values|
+      filename = "#{@indexpath}/#{fieldname}.json"
+      File.write filename, JSON.dump(values)
+    end
   end
 
 end

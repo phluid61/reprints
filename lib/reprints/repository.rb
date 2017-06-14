@@ -28,10 +28,19 @@ class Repository
   end
 
   def data_path type
+    _path 'data', type
+  end
+  def index_path type
+    _path 'index', type
+  end
+
+private
+
+  def _path key, type
     type = type.to_s
     raise "illegal data type #{type.inspect}" unless type =~ /\A\w+\z/
 
-    typedir = "#{@dir}/data/#{type}"
+    typedir = "#{@dir}/#{key}/#{type}"
     raise "unknown data type #{type.inspect}" unless File.directory? typedir
     typedir
   end

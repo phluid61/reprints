@@ -34,9 +34,13 @@ def field_to_text field, value, indent, outdent=false
   str
 end
 
-reprints = Reprints.new
+reprints = REPrints.new
 
 repo = reprints.repository 'test'
+
+repo.datatype_ids.each do |dtid|
+  repo.datatype(dtid).reindex!
+end
 
 t_record = repo.datatype('record')
 t_record.object_ids.each do |rid|

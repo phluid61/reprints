@@ -6,10 +6,22 @@ class Field
     @schema = schema
   end
 
+  def set_new v
+    self.class.new(@repo, @schema).set(v)
+  end
+
+  #
+  # Does this field have multiple values? (Like an array)
+  #
+  # @return true|false
+  #
   def multiple?
     @schema['multiple']
   end
 
+  #
+  # Set this field's value.
+  #
   def set v
     if multiple?
       @value = v.map {|w| single_value w }
@@ -20,10 +32,17 @@ class Field
   end
   alias :value= :set
 
+  #
+  # Get this field's value.
+  #
   def value
     @value
   end
 
+  #
+  # Iterate through each value in this field.
+  # Works even if not #multiple?
+  #
   def each &block
     return enum_for(:each) unless block_given?
     if multiple?
@@ -33,6 +52,38 @@ class Field
     end
   end
   include Enumerable
+
+  #
+  # Get this field's value, suitable for indexing.
+  #
+  def indexvalue
+    if multiple?
+      @value.map {|v| single_indexvalue v }
+    else
+      single_indexvalue @value
+    end
+  end
+
+  #
+  # Iterate through each indexable value in this field.
+  # Works even if not #multiple?
+  #
+  def each_indexvalue &block
+    return enum_for(:each_indexvalue) unless block_given?
+    if multiple?
+      @value.each {|v| yield single_indexvalue(v) }
+    else
+      yield single_indexvalue(@value)
+    end
+  end
+
+  #
+  # Convert a stored value to its indexable form.
+  #
+  def single_indexvalue v
+    # TODO: allow custom function in config
+    v.to_s
+  end
 
   def to_s
     @value.to_s
@@ -87,6 +138,9 @@ class Field
     def single_value v
       @type.load v
     end
+    def single_indexvalue v
+      v.id
+    end
     def to_s
       @value.inspect
     end
@@ -114,6 +168,19 @@ class Field
         hash[sf] = w
       end
       hash
+    end
+    def single_indexvalue v
+      ary = []
+      @subfields.each_pair do |sf_key,field|
+        field = field.set_new(v[sf_key])
+        if field.multiple?
+          sf_idx = '[' + field.indexvalue.join(',') + ']'
+        else
+          sf_idx = field.indexvalue
+        end
+        ary << "#{sf_key}=#{sf_idx}"
+      end
+      ary.join '|'
     end
     def to_s
       @subfields.each.map do |k,v|

@@ -36,15 +36,16 @@ class Configuration
       yield k, v
     end
   end
+  def each_key &block
+    @data = _load unless @data
+    return enum_for(:each_key) unless block_given?
+    @data.each_key do |k|
+      yield k
+    end
+  end
 
   def save
-    # mkdir -p
-    @path.split('/').inject do |p, dir|
-      dir = "#{p}/#{dir}"
-      Dir.mkdir dir, 0700 unless File.directory? dir
-      dir
-    end
-
+    REPrints::Utils::mkdir_p @path
     filename = "#{@path}/#{@name}.json"
     File.write filename, JSON.dump(@data)
   end
