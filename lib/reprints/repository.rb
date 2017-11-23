@@ -1,6 +1,5 @@
 
 class Repository
-
   def initialize id, dir
     raise "repo #{id} not found at #{dir}" unless File.directory? dir
     @id = id
@@ -22,6 +21,7 @@ class Repository
   def datatype_ids
     @datatypes.keys
   end
+
   def datatype type
     type = type.to_s
     @datatypes[type] or raise "unknown data type #{type.inspect}"
@@ -30,6 +30,7 @@ class Repository
   def data_path type
     _path 'data', type
   end
+
   def index_path type
     _path 'index', type
   end
@@ -44,7 +45,6 @@ private
     raise "unknown data type #{type.inspect}" unless File.directory? typedir
     typedir
   end
-
 end
 
 #vim: set ts=2 sts=2 sw=2 expandtab

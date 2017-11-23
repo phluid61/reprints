@@ -8,7 +8,6 @@ require_relative 'reprints/dataobj'
 require_relative 'reprints/field'
 
 class REPrints
-
   BASEDIR = File.dirname(File.dirname(__FILE__))
 
   # TODO
@@ -35,7 +34,7 @@ class REPrints
   def repository repoid
     @repos[repoid] or raise "unknown repository #{repoid.inspect}"
   end
-  alias :[] :repository
+  alias [] repository
 
   module Utils
     def mkdir_p path
@@ -45,9 +44,8 @@ class REPrints
         dir
       end
     end
-    extend self
+    module_function :mkdir_p
   end
-
 end
 
 #vim: set ts=2 sts=2 sw=2 expandtab

@@ -1,6 +1,5 @@
 
 class DataType
-
   def initialize repo, id
     @repo = repo
     @id = id
@@ -17,7 +16,7 @@ class DataType
   def field key
     @fields.get key
   end
-  alias :[] :field
+  alias [] field
 
   def create objid
     DataObj.new @repo, self, objid
@@ -32,10 +31,11 @@ class DataType
     #FIXME
     base = @datapath
     Dir.glob("#{base}/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]/[0-9][0-9]").map do |dir|
-      dir[base.length..-1].gsub('/','').to_i
+      dir[base.length..-1].delete('/').to_i
     end
   end
 
+  ###
 
   def datapath
     @datapath.dup
@@ -47,6 +47,7 @@ class DataType
     @datapath + '/' + str.scan(/../).join('/')
   end
 
+  ###
 
   def reindex! objids=nil
     index = {}
@@ -74,13 +75,12 @@ class DataType
       end
     end
 
-    REPrints::Utils::mkdir_p @indexpath
+    REPrints::Utils.mkdir_p @indexpath
     sorted.each_pair do |fieldname, values|
       filename = "#{@indexpath}/#{fieldname}.json"
       File.write filename, JSON.dump(values)
     end
   end
-
 end
 
 #vim: set ts=2 sts=2 sw=2 expandtab

@@ -19,6 +19,7 @@ def dataobj_to_text obj, indent=0
   end
   str
 end
+
 def field_to_text field, value, indent, outdent=false
   str = ''
   prefix = '  ' * indent
@@ -29,7 +30,7 @@ def field_to_text field, value, indent, outdent=false
     str << dataobj_to_text(thing, indent+1)
     str << "#{prefix}}\n"
   else
-    str << "#{lead}#{value.to_s}\n"
+    str << "#{lead}#{value}\n"
   end
   str
 end
@@ -46,11 +47,12 @@ t_record = repo.datatype('record')
 t_record.object_ids.each do |rid|
   puts "record \##{rid}:"
   record = t_record.load(rid)
-  puts dataobj_to_text(record,1)
+  puts dataobj_to_text(record, 1)
   puts '='*10
-  record['documents'].each_with_index do |doc,i|
+  record['documents'].each_with_index do |doc, i|
     puts "document #{i}:"
-    doc['files'].each_with_index do |file,j|
+    #doc['files'].each_with_index do |file, j|
+    doc['files'].each do |file|
       puts "  file #{i}:"
       fn = file['filename']
       if fn
@@ -59,7 +61,7 @@ t_record.object_ids.each do |rid|
         puts file.read(fn)
         puts '-'*10
       else
-        puts "  *** file with no filename?"
+        puts '  *** file with no filename?'
       end
     end
   end

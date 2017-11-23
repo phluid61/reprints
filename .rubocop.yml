@@ -1,0 +1,64 @@
+Metrics/LineLength:
+  Max: 101
+
+Style/MethodDefParentheses:
+  EnforcedStyle: require_no_parentheses
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+Layout/SpaceAroundOperators:
+  Enabled: false
+
+Layout/TrailingBlankLines:
+  #EnforcedStyle: 2
+  Enabled: false
+
+Layout/SpaceInsideBlockBraces:
+  SpaceBeforeBlockParameters: false
+
+Style/PercentLiteralDelimiters:
+  Enabled: false
+
+Layout/LeadingCommentSpace:
+  #EnforcedStyle: commented_out_code
+  Enabled: false
+
+Layout/SpaceBeforeBlockBraces:
+  # `foo {}` vs `foo{}.bar`
+  Enabled: false
+
+Style/AndOr:
+  # But... they have different precedence..?
+  Enabled: false
+
+Lint/RescueException:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/TrivialAccessors:
+  Enabled: false
+
+Style/EachWithObject:
+  # Way to hate on functional programming...
+  Enabled: false
+
+Layout/AccessModifierIndentation:
+  EnforcedStyle: outdent
+
+Style/FormatString:
+  EnforcedStyle: percent
+
+Style/RedundantSelf:
+  Enabled: false
+
+Style/OrAssignment:
+  # Arbitrary overrule
+  Enabled: false
+
+Style/NestedParenthesizedCalls:
+  #EnforcedStyle: only_with_commas
+  Enabled: false
+

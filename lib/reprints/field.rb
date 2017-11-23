@@ -1,6 +1,5 @@
 
 class Field
-
   def initialize repo, schema
     @repo = repo
     @schema = schema
@@ -30,7 +29,7 @@ class Field
     end
     self
   end
-  alias :value= :set
+  alias value= set
 
   #
   # Get this field's value.
@@ -46,7 +45,7 @@ class Field
   def each &block
     return enum_for(:each) unless block_given?
     if multiple?
-      @value.each &block
+      @value.each(&block)
     else
       yield @value
     end
@@ -68,7 +67,7 @@ class Field
   # Iterate through each indexable value in this field.
   # Works even if not #multiple?
   #
-  def each_indexvalue &block
+  def each_indexvalue &_block
     return enum_for(:each_indexvalue) unless block_given?
     if multiple?
       @value.each {|v| yield single_indexvalue(v) }
@@ -88,12 +87,12 @@ class Field
   def to_s
     @value.to_s
   end
+
   def inspect
     "\#<#{self.class.name} #{@value.inspect}>"
   end
 
   class <<self
-
     def from repo, schema
       #FIXME
       case (type = schema['type'])
@@ -111,7 +110,6 @@ class Field
         raise "unknown metafield type #{type.inspect}"
       end
     end
-
   end
 
   class Integer < ::Field
@@ -124,6 +122,7 @@ class Field
     def single_value v
       v.to_s
     end
+
     def =~ other
       @value =~ other
     end
@@ -135,12 +134,15 @@ class Field
       @type = DataType.new repo, schema['dataset']
       super
     end
+
     def single_value v
       @type.load v
     end
+
     def single_indexvalue v
       v.id
     end
+
     def to_s
       @value.inspect
     end
@@ -155,13 +157,16 @@ class Field
       end
       super
     end
+
     def field_ids
       @subfields.keys
     end
+
     def subfield fid
       @subfields[fid]
     end
-    alias :[] :subfield
+    alias [] subfield
+
     def single_value v
       hash = {}
       v.each_pair do |vkey, vval|
@@ -169,15 +174,16 @@ class Field
         if sf
           hash[vkey] = sf.set(vval)
         else
-          $stderr.puts "unrecognised metadata #{vkey} = #{vval.inspect}"
+          warn "unrecognised metadata #{vkey} = #{vval.inspect}"
           hash[vkey] = vval
         end
       end
       hash
     end
+
     def single_indexvalue v
       ary = []
-      @subfields.each_pair do |sf_key,field|
+      @subfields.each_pair do |sf_key, field|
         field = field.set_new(v[sf_key])
         if field.multiple?
           sf_idx = '[' + field.indexvalue.join(',') + ']'
@@ -188,13 +194,15 @@ class Field
       end
       ary.join '|'
     end
+
     def to_s
-      @subfields.each.map do |k,v|
-        "#{k}=#{v.to_s}"
+      @subfields.each.map do |k, v|
+        "#{k}=#{v}"
       end.inspect
     end
+
     def inspect
-      inner = @subfields.each.map do |k,v|
+      inner = @subfields.each.map do |k, v|
         "#{k}=#{v.inspect}"
       end
       "\#<#{self.class.name} #{inner.join ' '}>"
@@ -207,16 +215,17 @@ class Field
       @values = schema['values'].map(&:to_s)
       super
     end
+
     def single_value v
       v = v.to_s
       raise "item #{v.inspect} not in set #{@values.inspect}" unless @values.include?(v)
       v
     end
+
     def inspect
       "\#<#{self.class.name} values=#{@values.inspect} #{@value.inspect}>"
     end
   end
-
 end
 
 #vim: set ts=2 sts=2 sw=2 expandtab
