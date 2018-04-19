@@ -1,6 +1,4 @@
 
-#require 'json'
-
 require_relative 'reprints/configuration'
 require_relative 'reprints/repository'
 require_relative 'reprints/datatype'
