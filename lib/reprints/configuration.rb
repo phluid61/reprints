@@ -37,6 +37,7 @@ class Configuration
     @data.each_pair do |k, v|
       yield k, v
     end
+    nil
   end
 
   def each_key &_block
@@ -45,6 +46,7 @@ class Configuration
     @data.each_key do |k|
       yield k
     end
+    nil
   end
 
   def save
