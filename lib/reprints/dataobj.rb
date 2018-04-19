@@ -1,11 +1,15 @@
 
 class DataObj
-  def initialize repo, type, id
+  def initialize repo, type, id, lazy=false
     @repo = repo
     @type = type
     @id = id
 
-    @fields = Configuration.new path, 'metadata'
+    if lazy
+      @fields = Configuration.new path, 'metadata'
+    else
+      load!
+    end
   end
   attr_reader :repo
   attr_reader :type
@@ -51,7 +55,15 @@ class DataObj
         @fields[k] = v
       end
     end
-    #TODO: required/missing
+    @type.each_field do |k, cfg|
+      next if @fields[k]
+      fieldobj = Field.from(@repo, cfg)
+      if (dflt = fieldobj.default)
+        @fields[k] = fieldobj.tap{|f| f.default! }
+      elsif fieldobj.required?
+        raise "data object #{@type}:#{@id} missing required field #{k}"
+      end
+    end
     self
   end
 

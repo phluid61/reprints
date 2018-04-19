@@ -19,13 +19,16 @@ class DataType
   end
   alias [] field
 
+  def each_field &block
+    @fields.each(&block)
+  end
+
   def create objid
-    DataObj.new @repo, self, objid
+    DataObj.new @repo, self, objid, true
   end
 
   def load objid
-    obj = DataObj.new @repo, self, objid
-    obj.load!
+    DataObj.new @repo, self, objid
   end
 
   def object_ids

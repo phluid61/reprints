@@ -23,6 +23,16 @@ class Field
   end
 
   #
+  # Set this field's value to the default.
+  # If no default is configured, clears the value.
+  #
+  # Ignores limit checks, etc.
+  #
+  def default!
+    @value = default
+  end
+
+  #
   # Is this field required?
   #
   # @return true|false
