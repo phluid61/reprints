@@ -10,12 +10,52 @@ class Field
   end
 
   #
+  # Default value.
+  #
+  def default
+    if (d = @schema['default'])
+      if multiple?
+        d.map {|e| single_value e }
+      else
+        single_value v
+      end
+    end
+  end
+
+  #
+  # Is this field required?
+  #
+  # @return true|false
+  #
+  def required?
+    @schema['required'] ? true : false
+  end
+
+  #
   # Does this field have multiple values? (Like an array)
   #
   # @return true|false
   #
   def multiple?
-    @schema['multiple']
+    @schema['multiple'] ? true : false
+  end
+
+  #
+  # Minimum number of items, if #multiple?
+  #
+  # @return Integer
+  #
+  def min_count
+    multiple? ? (@schema['min_count'] || 0) : nil
+  end
+
+  #
+  # Maximum number of items, if #multiple?
+  #
+  # @return Integer|:unlimited
+  #
+  def max_count
+    multiple? ? (@schema['max_count'] || :unlimited) : nil
   end
 
   #
@@ -23,6 +63,7 @@ class Field
   #
   def set v
     if multiple?
+      raise "wrong number of values (#{v.length} for #{@min_count}..#{@max_count})" if (v.length < min_count) || (max_count != :unlimited && v.length > max_count)
       @value = v.map {|w| single_value w }
     else
       @value = single_value v
@@ -114,17 +155,40 @@ class Field
 
   class Integer < ::Field
     def single_value v
-      v.to_i
+      v.to_i.tap do |i|
+        raise "value too small (#{i} < #{min_value})" if min_value && i < min_value
+        raise "value too great (#{i} > #{max_value})" if max_value && i > max_value
+      end
+    end
+
+    def min_value
+      @schema['min'] || nil
+    end
+
+    def max_value
+      @schema['max'] || nil
     end
   end
 
   class String < ::Field
     def single_value v
-      v.to_s
+      v.to_s.tap do |s|
+        # based on characters (not bytes or whatever)
+        raise "string too short (#{s.length} < #{min_length})" if min_length && s.length < min_length
+        raise "string too long (#{s.length} > #{max_length})" if max_length && s.length > max_length
+      end
     end
 
     def =~ other
       @value =~ other
+    end
+
+    def min_length
+      @schema['min_length'] || nil
+    end
+
+    def max_length
+      @schema['max_length'] || nil
     end
   end
 
@@ -217,9 +281,9 @@ class Field
     end
 
     def single_value v
-      v = v.to_s
-      raise "item #{v.inspect} not in set #{@values.inspect}" unless @values.include?(v)
-      v
+      v.to_s.tap do |s|
+        raise "item #{s.inspect} not in set #{@values.inspect}" unless @values.include?(s)
+      end
     end
 
     def inspect
