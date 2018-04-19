@@ -1,4 +1,6 @@
 
+require 'yaml'
+
 class Configuration
 
   def initialize path, name='config'
@@ -46,14 +48,14 @@ class Configuration
 
   def save
     REPrints::Utils::mkdir_p @path
-    filename = "#{@path}/#{@name}.json"
-    File.write filename, JSON.dump(@data)
+    filename = "#{@path}/#{@name}.yaml"
+    File.write filename, YAML.dump(@data)
   end
 
   def dup
     cfg = Configuration.new @path, @name
     if @data
-      JSON.load(JSON.dump @data).each_pair do |k,v|
+      YAML.load(YAML.dump @data).each_pair do |k,v|
         cfg[k] = v
       end
     end
@@ -63,9 +65,9 @@ class Configuration
 private
 
   def _load
-    filename = "#{@path}/#{@name}.json"
+    filename = "#{@path}/#{@name}.yaml"
     return {} unless File.exist? filename
-    JSON.load(File.read filename)
+    YAML.load(File.read filename)
   end
 
 end

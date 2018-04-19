@@ -1,4 +1,0 @@
-{
-  "description": {"type":"string"},
-  "files": {"type":"dataobj","dataset":"file","multiple":true}
-}

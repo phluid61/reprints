@@ -1,3 +1,4 @@
+require 'yaml'
 
 class DataType
 
@@ -76,8 +77,8 @@ class DataType
 
     REPrints::Utils::mkdir_p @indexpath
     sorted.each_pair do |fieldname, values|
-      filename = "#{@indexpath}/#{fieldname}.json"
-      File.write filename, JSON.dump(values)
+      filename = "#{@indexpath}/#{fieldname}.yaml"
+      File.write filename, YAML.dump(values)
     end
   end
 
