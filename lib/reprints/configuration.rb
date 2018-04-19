@@ -2,7 +2,6 @@
 require 'yaml'
 
 class Configuration
-
   def initialize path, name='config'
     raise "illegal configuration name #{name.inspect}" unless name =~ /\A\w+\z/
     @path = path
@@ -14,6 +13,7 @@ class Configuration
     @data = _load unless @data
     @data.keys
   end
+
   def values
     @data = _load unless @data
     @data.values
@@ -23,22 +23,23 @@ class Configuration
     @data = _load unless @data
     @data[key]
   end
-  alias :[] :get
+  alias [] get
 
   def set key, value
     @data = {} unless @data
     @data[key] = value
   end
-  alias :[]= :set
+  alias []= set
 
-  def each &block
+  def each &_block
     @data = _load unless @data
     return enum_for(:each) unless block_given?
-    @data.each_pair do |k,v|
+    @data.each_pair do |k, v|
       yield k, v
     end
   end
-  def each_key &block
+
+  def each_key &_block
     @data = _load unless @data
     return enum_for(:each_key) unless block_given?
     @data.each_key do |k|
@@ -47,7 +48,7 @@ class Configuration
   end
 
   def save
-    REPrints::Utils::mkdir_p @path
+    REPrints::Utils.mkdir_p @path
     filename = "#{@path}/#{@name}.yaml"
     File.write filename, YAML.dump(@data)
   end
@@ -55,7 +56,7 @@ class Configuration
   def dup
     cfg = Configuration.new @path, @name
     if @data
-      YAML.load(YAML.dump @data).each_pair do |k,v|
+      YAML.load(YAML.dump @data).each_pair do |k, v|
         cfg[k] = v
       end
     end
@@ -69,7 +70,6 @@ private
     return {} unless File.exist? filename
     YAML.load(File.read filename)
   end
-
 end
 
 #vim: set ts=2 sts=2 sw=2 expandtab
