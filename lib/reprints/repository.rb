@@ -28,11 +28,30 @@ class Repository
     @config = Configuration.new @dir
 
     @datatypes = {}
-    @config['datatypes'].each do |dtid|
+    @config.delete('datatypes')&.each do |dtid|
       @datatypes[dtid] = DataType.new self, dtid
     end
   end
   attr_reader :id
+
+  def add_existing_datatype type
+    dtid = type.to_s
+    raise "duplicate datatype #{type.inspect}" if @datatypes.key? dtid
+    @datatypes[dtid] = DataType.new self, dtid
+  end
+
+  def create_new_datatype type
+    dtid = type.to_s
+    raise "duplicate datatype #{type.inspect}" if @datatypes.key? dtid
+    keys = %w[data index].map{|key| [key, _hypothetical_path(key, dtid)] }
+    keys.each do |key, path|
+      raise "datatype #{type.inspect} does not exist, but it has a #{key} directory" if File.directory? path
+    end
+    keys.each do |key, path|
+      REPrints::Utils.mkdir_p path
+    end
+    @datatype[dtid] = DataType.new self, dtid
+  end
 
   ##
   # Gets a datum of configuration.
@@ -76,13 +95,28 @@ class Repository
     _path 'index', type
   end
 
+  def set_config key, value
+    raise "invalid config key #{key.inspect}" if key == 'datatypes'
+    @config.set key, value
+  end
+
+  def save!
+    new_cfg = @config.dup
+    new_cfg['datatypes'] = datatype_ids
+    new_cfg.save
+  end
+
 private
 
-  def _path key, type
+  def _hypothetical_path key, type
     type = type.to_s
     raise "illegal data type #{type.inspect}" unless type =~ /\A\w+\z/
 
-    typedir = "#{@dir}/#{key}/#{type}"
+    "#{@dir}/#{key}/#{type}"
+  end
+
+  def _path key, type
+    typedir = _hypothetical_path key, type
     raise "unknown data type #{type.inspect}" unless File.directory? typedir
     typedir
   end

@@ -14,6 +14,11 @@ class Configuration
     @data.keys
   end
 
+  def key? key
+    @data = _load unless @data
+    @data.key? key
+  end
+
   def values
     @data = _load unless @data
     @data.values
@@ -26,10 +31,15 @@ class Configuration
   alias [] get
 
   def set key, value
-    @data = {} unless @data
+    @data = _load unless @data
     @data[key] = value
   end
   alias []= set
+
+  def delete key
+    @data = _load unless @data
+    @data.delete key
+  end
 
   def each &_block
     @data = _load unless @data

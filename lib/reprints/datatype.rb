@@ -39,6 +39,21 @@ class DataType
   end
   alias [] field
 
+  def add_field key, obj
+    raise "duplicate key #{key.inspect}" if @fields.key? key
+    raise "not a Field (#{obj.class.name})" unless @obj.respond_to? :schema
+    @fields.set key, Field.new(@repo, obj.schema)
+  end
+
+  def set_field key, obj
+    raise "not a Field (#{obj.class.name})" unless @obj.respond_to? :schema
+    @fields.set key, Field.new(@repo, obj.schema)
+  end
+
+  def drop_field key
+    @fields.delete key
+  end
+
   ##
   # Iterates over the fields.
   #

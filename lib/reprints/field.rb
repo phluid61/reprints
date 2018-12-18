@@ -4,6 +4,7 @@ class Field
     @repo = repo
     @schema = schema
   end
+  attr_reader :schema
 
   def set_new v
     self.class.new(@repo, @schema).set(v)
