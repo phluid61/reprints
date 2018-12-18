@@ -42,12 +42,12 @@ class DataType
   def add_field key, obj
     raise "duplicate key #{key.inspect}" if @fields.key? key
     raise "not a Field (#{obj.class.name})" unless @obj.respond_to? :schema
-    @fields.set key, Field.new(@repo, obj.schema)
+    @fields.set key, Field.from(@repo, obj.schema)
   end
 
   def set_field key, obj
     raise "not a Field (#{obj.class.name})" unless @obj.respond_to? :schema
-    @fields.set key, Field.new(@repo, obj.schema)
+    @fields.set key, Field.from(@repo, obj.schema)
   end
 
   def drop_field key
@@ -61,6 +61,10 @@ class DataType
   #
   def each_field &block
     @fields.each(&block)
+  end
+
+  def save!
+    @fields.save
   end
 
   ##
